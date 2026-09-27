@@ -14,7 +14,7 @@ Download it from [docker.com](https://www.docker.com/products/docker-desktop/), 
 
 **2. Download PIFA**
 
-Click the green **Code** button at the top of this page → **Download ZIP**. Unzip it somewhere easy, like your Desktop. You'll get a folder called `pifa-main` (the "PIFA folder" below).
+Click the green **Code** button at the top of this page → **Download ZIP**. Unzip it somewhere easy, like your Desktop. You'll get a folder called `Personal-Irish-Financial-App-main` (the "PIFA folder" below).
 
 **3. Start PIFA**
 
@@ -38,7 +38,9 @@ Go to **http://localhost:8080** in your browser.
   2. **Accounts** → add your bank accounts, savings, pensions and loans.
   3. **Transactions → Import CSV** → upload a CSV export from your bank (AIB, Bank of Ireland, PTSB, Revolut, N26 and most others work).
 
-Want to test an import first? Use [`samples/sample-transactions.csv`](samples/sample-transactions.csv).
+Want to test imports first? Use [`samples/sample-transactions.csv`](samples/sample-transactions.csv) on the Transactions page and [`samples/sample-positions.csv`](samples/sample-positions.csv) on the Investments page.
+
+PIFA starts in a dark & gold theme. Click **Light mode** at the bottom of the sidebar to switch.
 
 ## Stop, start and update
 

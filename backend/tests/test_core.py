@@ -89,3 +89,21 @@ def test_debt_avalanche_saves_interest():
     fast = sim.simulate_debt(debts, 200, "avalanche")
     assert fast["months"] < base["months"] and fast["total_interest"] < base["total_interest"]
     assert fast["order"][0]["name"] == "Card"
+
+
+def test_emergency_fund_and_position_import_api():
+    from fastapi.testclient import TestClient
+    from app.main import app
+    with TestClient(app) as c:
+        c.post("/api/data/demo")
+        e = c.get("/api/emergency").json()
+        assert e["linked_account"] and e["balance"] > 0 and e["coverage_months"] > 0
+        c.put("/api/settings/emergency", json={"source": "manual", "amount": 5000, "months": 6, "target": 12000})
+        e = c.get("/api/emergency").json()
+        assert e["balance"] == 5000 and e["effective_target"] == 12000 and e["linked_account"] is None
+        template = c.get("/api/holdings/template").content
+        brokerage = next(a for a in c.get("/api/accounts").json() if a["type"] == "brokerage")
+        r = c.post("/api/holdings/import", files={"file": ("p.csv", template)}, data={"account_id": brokerage["id"]}).json()
+        assert r["added"] == 4
+        types = {h["symbol"]: (h["type"], h["tax_regime"]) for h in c.get("/api/holdings").json()}
+        assert types["BTC-EUR"] == ("crypto", "cgt") and types["IWDA.AS"] == ("etf", "exit_tax")

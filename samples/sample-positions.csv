@@ -1,0 +1,5 @@
+name,ticker,type,units,buy_price,price,purchase_date,isin
+Vanguard FTSE All-World UCITS ETF (Acc),VWCE.DE,etf,52,104.10,128.60,2023-03-14,IE00BK5BQT80
+iShares Core MSCI World UCITS ETF,IWDA.AS,etf,148,82.40,101.20,2022-05-02,IE00B4L5Y983
+Apple Inc.,AAPL,stock,12,168.00,214.50,2024-01-15,US0378331005
+Bitcoin,BTC-EUR,crypto,0.18,38200,61800,2024-02-01,

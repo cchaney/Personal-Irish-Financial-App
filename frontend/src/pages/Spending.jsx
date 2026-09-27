@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { C } from "../theme";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { eur, compact, monthLabel } from "../format";
 import { useApi, useApp, PageHead, PeriodPicker, periodParams, Stat, Seg, BarList, Empty, Loading, ErrorBox } from "../components/ui";
@@ -58,7 +59,7 @@ export default function Spending() {
           <div className="card-head"><div><h2>Spending trend</h2><div className="hint">Click groups in the breakdown to chart only those. Click a category to see its transactions.</div></div></div>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.trend} margin={{ left: 4, right: 4 }}>
-              <CartesianGrid vertical={false} stroke="#ECEAE6" />
+              <CartesianGrid vertical={false} stroke={C.grid} />
               <XAxis dataKey="month" tickFormatter={monthLabel} tickLine={false} axisLine={false} />
               <YAxis tickFormatter={compact} tickLine={false} axisLine={false} width={48} />
               <Tooltip formatter={(v, n) => [eur(v), n]} labelFormatter={monthLabel} />

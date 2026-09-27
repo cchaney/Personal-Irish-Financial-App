@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { C } from "../theme";
 import { ComposedChart, Area, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 import { api } from "../api";
 import { eur, pct, compact } from "../format";
@@ -51,14 +52,14 @@ function FanChart({ rows, xKey, real, extra }) {
   return (
     <ResponsiveContainer width="100%" height={330}>
       <ComposedChart data={data} margin={{ left: 4, right: 8, top: 6 }}>
-        <CartesianGrid vertical={false} stroke="#ECEAE6" />
+        <CartesianGrid vertical={false} stroke={C.grid} />
         <XAxis dataKey="x" tickLine={false} axisLine={false} minTickGap={24} />
         <YAxis tickFormatter={compact} tickLine={false} axisLine={false} width={56} />
         <Tooltip content={tip} />
-        <Area dataKey="outer" stroke="none" fill="#F26B2A" fillOpacity={0.1} isAnimationActive={false} />
-        <Area dataKey="inner" stroke="none" fill="#F26B2A" fillOpacity={0.2} isAnimationActive={false} />
-        <Line dataKey="median" stroke="#F26B2A" strokeWidth={2.2} dot={false} isAnimationActive={false} />
-        {!real && <Line dataKey="contributed" stroke="#8C8882" strokeDasharray="4 4" dot={false} isAnimationActive={false} />}
+        <Area dataKey="outer" stroke="none" fill={C.accent} fillOpacity={0.1} isAnimationActive={false} />
+        <Area dataKey="inner" stroke="none" fill={C.accent} fillOpacity={0.2} isAnimationActive={false} />
+        <Line dataKey="median" stroke={C.accent} strokeWidth={2.2} dot={false} isAnimationActive={false} />
+        {!real && <Line dataKey="contributed" stroke={C.muted} strokeDasharray="4 4" dot={false} isAnimationActive={false} />}
       </ComposedChart>
     </ResponsiveContainer>
   );
@@ -202,7 +203,7 @@ export default function Simulator() {
                     <YAxis type="category" dataKey="n" width={120} tickLine={false} axisLine={false} />
                     <Tooltip formatter={(v) => eur(v, 0)} />
                     <Bar dataKey="v" radius={[0, 6, 6, 0]} isAnimationActive={false}>
-                      {["#1E8E3E", "#2F6FDB", "#F26B2A", "#9CA3AF"].map((c) => <Cell key={c} fill={c} />)}
+                      {["#1E8E3E", "#2F6FDB", C.accent, "#9CA3AF"].map((c) => <Cell key={c} fill={c} />)}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>

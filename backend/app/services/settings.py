@@ -24,6 +24,13 @@ DEFAULTS = {
         "post_retirement_return": 4.0,
         "drawdown_to_age": 90,
     },
+    "emergency": {
+        "source": "manual",        # manual (money PIFA can't see) | account (linked to one of your accounts)
+        "amount": 0,
+        "account_id": None,
+        "months": 3,
+        "target": None,            # None = use months × average monthly spending
+    },
     "ai": {
         "provider": os.environ.get("PIFA_AI_PROVIDER", "none"),   # none | ollama | openai | anthropic
         "ollama_url": os.environ.get("OLLAMA_URL", "http://ollama:11434"),

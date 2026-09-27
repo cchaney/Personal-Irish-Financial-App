@@ -1,4 +1,5 @@
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, Legend } from "recharts";
+import { C } from "../theme";
 import { eur, eurSigned, compact, monthLabel, pct } from "../format";
 import { useApi, useApp, PageHead, Stat, Loading, ErrorBox, Empty } from "../components/ui";
 import { InsightList } from "./Coach";
@@ -39,12 +40,12 @@ export default function Overview() {
           <div className="card-head"><h2>Net worth</h2><button className="btn ghost" onClick={() => go("networth")}>Details</button></div>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={h} margin={{ left: 4, right: 8 }}>
-              <defs><linearGradient id="ov" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F26B2A" stopOpacity={0.22} /><stop offset="100%" stopColor="#F26B2A" stopOpacity={0.02} /></linearGradient></defs>
-              <CartesianGrid vertical={false} stroke="#ECEAE6" />
+              <defs><linearGradient id="ov" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.accent} stopOpacity={0.22} /><stop offset="100%" stopColor={C.accent} stopOpacity={0.02} /></linearGradient></defs>
+              <CartesianGrid vertical={false} stroke={C.grid} />
               <XAxis dataKey="month" tickFormatter={monthLabel} tickLine={false} axisLine={false} />
               <YAxis tickFormatter={compact} tickLine={false} axisLine={false} width={52} domain={["auto", "auto"]} />
               <Tooltip formatter={(v) => eur(v, 0)} labelFormatter={monthLabel} />
-              <Area type="monotone" dataKey="net_worth" name="Net worth" stroke="#F26B2A" strokeWidth={2} fill="url(#ov)" dot={{ r: 2.5, fill: "#F26B2A" }} isAnimationActive={false} />
+              <Area type="monotone" dataKey="net_worth" name="Net worth" stroke={C.accent} strokeWidth={2} fill="url(#ov)" dot={{ r: 2.5, fill: C.accent }} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
           <div className="stackbar" style={{ marginTop: 12 }}>
@@ -63,7 +64,7 @@ export default function Overview() {
         <div className="card-head"><h2>Cash flow, last 6 months</h2><button className="btn ghost" onClick={() => go("cashflow")}>Details</button></div>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={data.cashflow} margin={{ left: 4, right: 8 }}>
-            <CartesianGrid vertical={false} stroke="#ECEAE6" />
+            <CartesianGrid vertical={false} stroke={C.grid} />
             <XAxis dataKey="month" tickFormatter={monthLabel} tickLine={false} axisLine={false} />
             <YAxis tickFormatter={compact} tickLine={false} axisLine={false} width={48} />
             <Tooltip formatter={(v, n) => [eur(v, 0), n]} labelFormatter={monthLabel} /><Legend />

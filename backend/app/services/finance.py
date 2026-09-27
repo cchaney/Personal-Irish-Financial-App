@@ -236,6 +236,8 @@ def holdings_view(session: Session) -> list[dict]:
     for h in hs:
         d = h.model_dump()
         d["value"] = h.value
+        d["buy_price"] = round(h.cost_basis / h.units, 4) if h.units else None
+        d["type"] = {"equity": "etf", "multi_asset": "fund", "property": "fund", "cash": "other"}.get(h.asset_class, h.asset_class)
         d["gain"] = round(h.value - h.cost_basis, 2)
         d["gain_pct"] = round((h.value / h.cost_basis - 1) * 100, 2) if h.cost_basis else None
         d["account_name"] = accs[h.account_id].name if h.account_id in accs else ""
@@ -250,3 +252,30 @@ def holdings_view(session: Session) -> list[dict]:
         d["next_deemed_disposal"] = nd.isoformat() if nd else None
         out.append(d)
     return sorted(out, key=lambda r: -r["value"])
+
+
+def emergency_summary(session: Session) -> dict:
+    cfg = st.get(session, "emergency")
+    avg = monthly_averages(session)
+    monthly = round(avg["spending"] + avg["debt_repayment"], 2)
+    accs = accounts_with_values(session)
+    linked = next((a for a in accs if a["id"] == cfg.get("account_id")), None) if cfg.get("source") == "account" else None
+    balance = float(linked["value"]) if linked else float(cfg.get("amount") or 0)
+    months = int(cfg.get("months") or 3)
+    suggested = round(monthly * months, 0)
+    target = float(cfg["target"]) if cfg.get("target") else None
+    configured = bool(balance or target or linked)
+    return {
+        "config": cfg,
+        "configured": configured,
+        "balance": round(balance, 2),
+        "linked_account": {"id": linked["id"], "name": linked["name"]} if linked else None,
+        "target": target,
+        "effective_target": target or (suggested if configured else None),
+        "average_monthly_spending": monthly,
+        "coverage_months": round(balance / monthly, 1) if monthly else None,
+        "suggested_target": suggested,
+        "progress": round(min(1.0, balance / (target or suggested)), 3) if (target or suggested) else None,
+        "accounts": [{"id": a["id"], "name": a["name"], "value": a["value"]} for a in accs
+                     if a["type"] in ("current", "savings", "cash")],
+    }

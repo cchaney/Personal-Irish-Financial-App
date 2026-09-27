@@ -41,13 +41,15 @@ def seed(session: Session) -> dict:
 
     holdings = [
         Holding(account_id=t212.id, name="Vanguard FTSE All-World UCITS ETF (Acc)", symbol="VWCE.DE", isin="IE00BK5BQT80",
-                units=92, cost_basis=10150, price=138.40, tax_regime="exit_tax", purchase_date=date(2023, 3, 14), sri=4),
+                units=92, cost_basis=10150, price=138.40, tax_regime="exit_tax", purchase_date=date(2023, 3, 14), sri=4, asset_class="etf"),
         Holding(account_id=t212.id, name="iShares Core S&P 500 UCITS ETF (Acc)", symbol="CSPX.AS", isin="IE00B5BMR087",
-                units=6, cost_basis=3050, price=610.00, tax_regime="exit_tax", purchase_date=date(2019, 2, 1), sri=4),
+                units=6, cost_basis=3050, price=610.00, tax_regime="exit_tax", purchase_date=date(2019, 2, 1), sri=4, asset_class="etf"),
         Holding(account_id=t212.id, name="Kerry Group", symbol="KRZ.IR", isin="IE0004906560",
-                units=15, cost_basis=1320, price=92.10, tax_regime="cgt", purchase_date=date(2022, 6, 3), sri=5),
+                units=15, cost_basis=1320, price=92.10, tax_regime="cgt", purchase_date=date(2022, 6, 3), sri=5, asset_class="stock"),
+        Holding(account_id=t212.id, name="Bitcoin", symbol="BTC-EUR", units=0.06, cost_basis=2280, price=61800.0,
+                tax_regime="cgt", purchase_date=date(2024, 2, 1), sri=7, asset_class="crypto"),
         Holding(account_id=pen.id, name="Irish Life MAPS 4", units=15872.1, cost_basis=33400, price=2.4460,
-                tax_regime="pension", sri=4, asset_class="multi_asset"),
+                tax_regime="pension", sri=4, asset_class="fund"),
     ]
     for h in holdings:
         session.add(h)
@@ -153,6 +155,7 @@ def seed(session: Session) -> dict:
                 v = now * rnd.uniform(0.6, 1.4)
             session.add(BalanceSnapshot(account_id=aid, date=snap_date, balance=round(max(v, 0), 2)))
 
+    session.add(Setting(key="emergency", value={"source": "account", "account_id": sav.id, "months": 3, "target": None}))
     session.add(Setting(key="profile", value={
         "name": "Demo", "date_of_birth": f"{today.year - 34}-04-12", "gross_salary": 72000, "salary_growth": 2.5,
         "retirement_age": 66, "tax_status": "single", "emergency_months_target": 6, "target_retirement_income": 35000}))
