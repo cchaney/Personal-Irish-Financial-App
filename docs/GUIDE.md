@@ -42,8 +42,8 @@ Check it works in a terminal: `docker compose version`
 ### 2. Get the code
 Either unzip the download, or:
 ```bash
-git clone https://github.com/cchaney/Personal-Irish-Financial-App.git
-cd Personal-Irish-Financial-App
+git clone https://github.com/YOUR-GITHUB-USERNAME/pifa.git
+cd pifa
 ```
 
 ### 3. Settings file (optional)
