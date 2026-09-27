@@ -14,7 +14,7 @@ Download it from [docker.com](https://www.docker.com/products/docker-desktop/), 
 
 **2. Download PIFA**
 
-Click the green **Code** button at the top of this page → **Download ZIP**. Unzip it somewhere easy, like your Desktop. You'll get a folder called `Personal-Irish-Financial-App-main` (the "PIFA folder" below).
+Click the green **Code** button at the top of this page → **Download ZIP**. Unzip it somewhere easy, like your Desktop. You'll get a folder called `pifa-main` (the "PIFA folder" below).
 
 **3. Start PIFA**
 
