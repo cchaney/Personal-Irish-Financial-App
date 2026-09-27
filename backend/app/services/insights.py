@@ -27,8 +27,12 @@ def build(session: Session) -> list[dict]:
     age = pen["age"]
     salary = float(profile["gross_salary"])
 
+    ef = fin.emergency_summary(session)
+    ef_account = (ef["linked_account"] or {}).get("id")
     liquid = sum(a["value"] for a in accs if a["type"] in ("current", "savings", "cash"))
     spend = avg["spending"] + avg["debt_repayment"]
+    # Money in the emergency fund is a reserve, so it doesn't count as idle cash.
+    spare_cash = liquid - (ef["balance"] if ef_account else 0)
 
     # 1. High-interest debt
     debts = [a for a in accs if a["type"] in LIABILITY_TYPES and a["value"] > 0]
@@ -46,7 +50,30 @@ def build(session: Session) -> list[dict]:
         })
 
     # 2. Emergency fund
-    if spend > 0:
+    if spend > 0 and ef["configured"]:
+        months = ef["coverage_months"] or 0
+        goal = ef["effective_target"] or 0
+        if ef["balance"] < goal * 0.999:
+            out.append({"id": "emergency_fund", "tone": "act" if months < 3 else "watch",
+                        "title": f"Emergency fund: {months:.1f} months covered, {eur(goal - ef['balance'])} to go",
+                        "detail": (f"Your target is {eur(goal)}. Build it in an instant-access account before "
+                                   f"investing more, so a surprise bill doesn't land on a credit card."),
+                        "value": None, "page": "emergency"})
+        else:
+            out.append({"id": "emergency_ok", "tone": "good", "title": f"Emergency fund complete: {months:.1f} months covered",
+                        "detail": "Your reserve is at or above target.", "value": None, "page": "emergency"})
+        target = profile.get("emergency_months_target", 6)
+        cash_months = spare_cash / spend
+        if cash_months > target + 3:
+            excess = spare_cash - spend * target
+            gain = excess * (0.055 * (1 - tax.EXIT_TAX) - assumptions["cash_rate"] / 100 * (1 - tax.DIRT))
+            out.append({"id": "cash_drag", "tone": "watch",
+                        "title": f"About {eur(excess)} of spare cash is doing very little",
+                        "detail": ("Beyond your emergency fund, this cash is losing ground to inflation. Consider pension "
+                                   "top-ups (tax relief first), paying down debt, or a diversified fund for money you "
+                                   "won't need for 5+ years."),
+                        "value": round(max(gain, 0), 0), "page": "simulator"})
+    elif spend > 0:
         months = liquid / spend
         target = profile.get("emergency_months_target", 6)
         if months < 3:
@@ -54,7 +81,7 @@ def build(session: Session) -> list[dict]:
                         "title": f"Your cash covers {months:.1f} months of spending",
                         "detail": (f"Aim for {target} months ({eur(spend * target)}) in an instant-access account before "
                                    f"investing more. You're {eur(max(0, spend * target - liquid))} short."),
-                        "value": None, "page": "accounts"})
+                        "value": None, "page": "emergency"})
         elif months > max(target, 6) + 3:
             excess = liquid - spend * target
             gain = excess * (0.055 * (1 - tax.EXIT_TAX) - assumptions["cash_rate"] / 100 * (1 - tax.DIRT))
@@ -68,7 +95,7 @@ def build(session: Session) -> list[dict]:
         else:
             out.append({"id": "emergency_ok", "tone": "good",
                         "title": f"Emergency fund: {months:.1f} months covered",
-                        "detail": "Your cash buffer is in a healthy range.", "value": None, "page": "accounts"})
+                        "detail": "Your cash buffer is in a healthy range.", "value": None, "page": "emergency"})
 
     # 3. Pension tax relief headroom
     if salary > 0 and pen["headroom"] > 500:

@@ -164,6 +164,75 @@ def delete_holding(holding_id: int, session: Session = Depends(get_session)):
     return {"ok": True}
 
 
+POSITION_TEMPLATE = (
+    "name,ticker,type,units,buy_price,price,purchase_date,isin\n"
+    "Vanguard FTSE All-World UCITS ETF (Acc),VWCE.DE,etf,52,104.10,128.60,2023-03-14,IE00BK5BQT80\n"
+    "iShares Core MSCI World UCITS ETF,IWDA.AS,etf,148,82.40,101.20,2022-05-02,IE00B4L5Y983\n"
+    "Apple Inc.,AAPL,stock,12,168.00,214.50,2024-01-15,US0378331005\n"
+    "Bitcoin,BTC-EUR,crypto,0.18,38200,61800,2024-02-01,\n"
+)
+TYPE_TAX = {"etf": "exit_tax", "fund": "exit_tax", "stock": "cgt", "crypto": "cgt", "bond": "cgt", "other": "none"}
+
+
+@router.get("/holdings/template")
+def holdings_template():
+    from fastapi.responses import Response
+    return Response(POSITION_TEMPLATE, media_type="text/csv",
+                    headers={"Content-Disposition": "attachment; filename=pifa-positions-template.csv"})
+
+
+@router.post("/holdings/import")
+async def import_holdings(file: UploadFile = File(...), account_id: int = Form(...),
+                          session: Session = Depends(get_session)):
+    acc = session.get(Account, account_id)
+    if not acc:
+        raise HTTPException(400, "Choose the account these positions are held in.")
+    headers, rows = importers.read_rows(importers.decode(await file.read()))
+    low = {h.lower().strip(): h for h in headers}
+
+    def col(*names):
+        for n in names:
+            if n in low:
+                return low[n]
+        return None
+    c_name = col("name", "instrument", "security", "position", "description")
+    c_tick = col("ticker", "symbol", "code")
+    c_type = col("type", "asset type", "asset_class", "class")
+    c_units = col("units", "quantity", "shares", "no. of shares", "amount held")
+    c_buy = col("buy_price", "buy price", "average price", "avg price", "cost per unit", "price paid")
+    c_cost = col("cost", "total cost", "cost basis", "invested")
+    c_price = col("price", "current price", "last price")
+    c_date = col("purchase_date", "purchase date", "date", "bought")
+    c_isin = col("isin")
+    if not (c_name or c_tick) or not c_units:
+        raise HTTPException(400, "The CSV needs at least a name or ticker column and a units column. "
+                                 "Download the template to see the format.")
+    added, warnings = 0, []
+    for i, r in enumerate(rows):
+        units = importers.parse_amount(r.get(c_units, "")) if c_units else None
+        if not units:
+            warnings.append(f"Row {i + 2}: no units, skipped")
+            continue
+        buy = importers.parse_amount(r.get(c_buy, "")) if c_buy else None
+        cost = importers.parse_amount(r.get(c_cost, "")) if c_cost else None
+        price = importers.parse_amount(r.get(c_price, "")) if c_price else None
+        kind = (r.get(c_type, "") if c_type else "").strip().lower() or "etf"
+        kind = {"share": "stock", "shares": "stock", "equity": "stock", "cryptocurrency": "crypto"}.get(kind, kind)
+        if kind not in TYPE_TAX:
+            kind = "other"
+        cost_basis = cost if cost else (buy * units if buy else 0)
+        session.add(Holding(
+            account_id=account_id, name=(r.get(c_name) if c_name else "") or r.get(c_tick, ""),
+            symbol=(r.get(c_tick, "") if c_tick else "").strip(), isin=(r.get(c_isin, "") if c_isin else "").strip(),
+            asset_class=kind, units=units, cost_basis=round(cost_basis, 2),
+            price=price or (buy or 0), price_date=date.today(),
+            tax_regime="pension" if acc.type == "pension" else TYPE_TAX[kind],
+            purchase_date=importers.parse_date(r.get(c_date, "")) if c_date else None))
+        added += 1
+    session.commit()
+    return {"added": added, "warnings": warnings[:20]}
+
+
 @router.post("/prices/refresh")
 def refresh_prices(session: Session = Depends(get_session)):
     if offline_mode():

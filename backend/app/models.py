@@ -66,7 +66,7 @@ class Holding(SQLModel, table=True):
     name: str
     symbol: str = ""          # Yahoo Finance ticker, e.g. VWCE.DE, CSPX.L
     isin: str = ""
-    asset_class: str = "equity"   # equity, bond, multi_asset, property, cash, crypto
+    asset_class: str = "etf"      # etf, stock, crypto, fund, bond, other
     units: float = 0.0
     cost_basis: float = 0.0   # total € paid
     price: float = 0.0        # € per unit

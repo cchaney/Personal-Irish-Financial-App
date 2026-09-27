@@ -4,7 +4,7 @@ import { api } from "../api";
 import { eur } from "../format";
 import { useApi, useApp, PageHead, Loading, ErrorBox, Notice, Modal } from "../components/ui";
 
-const PAGE_NAMES = { loans: "Loans", accounts: "Accounts", pensions: "Pensions", spending: "Spending", simulator: "Simulator", investments: "Investments" };
+const PAGE_NAMES = { emergency: "Emergency fund", loans: "Loans", accounts: "Accounts", pensions: "Pensions", spending: "Spending", simulator: "Simulator", investments: "Investments" };
 const ICONS = { act: Lightbulb, watch: TriangleAlert, good: CircleCheck };
 const PROMPTS = [
   "Where could I save €200 a month?",
@@ -92,7 +92,7 @@ export default function Coach() {
       </div>
       {ctx && <Modal wide title="What gets sent to the AI" onClose={() => setCtx(null)}>
         <Notice>This is the full snapshot included with each question. Turn off merchant names in Settings → AI to share less.</Notice>
-        <pre style={{ fontSize: 11.5, overflowX: "auto", background: "#FAF9F7", padding: 12, borderRadius: 8 }}>{JSON.stringify(ctx, null, 2)}</pre>
+        <pre style={{ fontSize: 11.5, overflowX: "auto", background: "var(--subtle)", padding: 12, borderRadius: 8 }}>{JSON.stringify(ctx, null, 2)}</pre>
       </Modal>}
     </>
   );

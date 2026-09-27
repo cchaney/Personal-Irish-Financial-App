@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { C } from "../theme";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
 import { ChevronRight, ChevronDown, Camera } from "lucide-react";
 import { api } from "../api";
@@ -30,12 +31,12 @@ export default function NetWorth() {
             <Seg options={[["net", "Net worth"], ["split", "Assets vs debts"]]} value={view} onChange={setView} /></div>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={data.history} margin={{ left: 4, right: 8, top: 6 }}>
-              <defs><linearGradient id="nw" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F26B2A" stopOpacity={0.22} /><stop offset="100%" stopColor="#F26B2A" stopOpacity={0.02} /></linearGradient></defs>
-              <CartesianGrid vertical={false} stroke="#ECEAE6" />
+              <defs><linearGradient id="nw" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.accent} stopOpacity={0.22} /><stop offset="100%" stopColor={C.accent} stopOpacity={0.02} /></linearGradient></defs>
+              <CartesianGrid vertical={false} stroke={C.grid} />
               <XAxis dataKey="month" tickFormatter={monthLabel} tickLine={false} axisLine={false} />
               <YAxis tickFormatter={compact} tickLine={false} axisLine={false} width={52} domain={view === "net" ? [Math.floor(minY * 0.95 / 1000) * 1000, "auto"] : [0, "auto"]} />
               <Tooltip formatter={(v, n) => [eur(v, 0), n]} labelFormatter={monthLabel} />
-              {view === "net" ? <Area type="monotone" dataKey="net_worth" name="Net worth" stroke="#F26B2A" strokeWidth={2} fill="url(#nw)" dot={{ r: 2.5, fill: "#F26B2A" }} isAnimationActive={false} />
+              {view === "net" ? <Area type="monotone" dataKey="net_worth" name="Net worth" stroke={C.accent} strokeWidth={2} fill="url(#nw)" dot={{ r: 2.5, fill: C.accent }} isAnimationActive={false} />
                 : [<Area key="a" type="monotone" dataKey="assets" name="Assets" stroke="#1FA971" fill="#1FA971" fillOpacity={0.1} isAnimationActive={false} />,
                   <Area key="l" type="monotone" dataKey="liabilities" name="Liabilities" stroke="#DC4C3E" fill="#DC4C3E" fillOpacity={0.1} isAnimationActive={false} />,
                   <Legend key="lg" />]}

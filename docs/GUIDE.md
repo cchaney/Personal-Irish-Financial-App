@@ -14,8 +14,9 @@
 | **Spending** | Donut and ranked bars by group, category or merchant, plus a monthly trend |
 | **Net worth** | History chart, assets and liabilities by type |
 | **Accounts** | Current, savings, investment, pension, property, credit cards, loans, mortgages |
-| **Investments** | Holdings, gains, live prices by ticker, Irish exit tax and 8-year deemed disposal dates |
+| **Investments** | ETFs, shares, crypto and funds with type badges, buy price, profit/loss, live prices by ticker, CSV import of positions, and Irish exit tax / deemed disposal dates |
 | **Pensions** | Every pot, contributions, and how much pension tax relief you're leaving unused |
+| **Emergency fund** | Balance (typed in or linked to an account), target from months of spending, coverage and progress |
 | **Loans** | Payoff planner: highest-interest-first vs smallest-balance-first, with extra payments |
 | **Simulator** | Monte Carlo pension projection (tax relief, lifestyling, lump sum, ARF drawdown, State Pension) and investment projection comparing ETF vs shares vs pension vs deposit after Irish tax |
 | **AI coach** | Chat about your finances using a local model (Ollama) or Claude. Plus ~12 built-in checks that work without any AI |
@@ -42,8 +43,8 @@ Check it works in a terminal: `docker compose version`
 ### 2. Get the code
 Either unzip the download, or:
 ```bash
-git clone https://github.com/YOUR-GITHUB-USERNAME/pifa.git
-cd pifa
+git clone https://github.com/cchaney/Personal-Irish-Financial-App.git
+cd Personal-Irish-Financial-App
 ```
 
 ### 3. Settings file (optional)
@@ -96,6 +97,9 @@ docker compose cp pifa:/data/pifa.db ./pifa-backup.db
 
 ### Fully offline
 Set `PIFA_OFFLINE=true` in `.env` and run `docker compose up -d`. PIFA then never makes network requests (price updates and cloud AI are disabled). Fonts and charts are bundled, so the app works with no internet at all.
+
+## Appearance
+PIFA starts in a dark & gold theme. Switch to the light theme with **Light mode** at the bottom of the sidebar; your choice is remembered in that browser.
 
 ## Security
 PIFA has no login. It's bound to `127.0.0.1` so only your computer can reach it. **Don't** expose it to the internet or change the port binding to `0.0.0.0` unless you put it behind a reverse proxy with authentication (or use Tailscale/WireGuard to reach it from your phone).

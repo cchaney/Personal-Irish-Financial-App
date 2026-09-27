@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard, ReceiptText, ArrowLeftRight, ChartPie, TrendingUp, Landmark, ChartLine, PiggyBank,
-  HandCoins, FlaskConical, Sparkles, CircleHelp, Settings as SettingsIcon, Ellipsis,
+  HandCoins, FlaskConical, Sparkles, CircleHelp, Settings as SettingsIcon, Ellipsis, ShieldCheck, Sun, Moon,
 } from "lucide-react";
 import { api } from "./api";
 import { AppCtx, presetRange } from "./components/ui";
+import { applyTheme, currentTheme } from "./theme";
+import Emergency from "./pages/Emergency";
 import Overview from "./pages/Overview";
 import Transactions from "./pages/Transactions";
 import CashFlow from "./pages/CashFlow";
@@ -27,6 +29,7 @@ const PAGES = {
   accounts: { label: "Accounts", icon: Landmark, el: Accounts },
   investments: { label: "Investments", icon: ChartLine, el: Investments, section: "Wealth" },
   pensions: { label: "Pensions", icon: PiggyBank, el: Pensions },
+  emergency: { label: "Emergency fund", icon: ShieldCheck, el: Emergency },
   loans: { label: "Loans", icon: HandCoins, el: Loans },
   simulator: { label: "Simulator", icon: FlaskConical, el: Simulator, section: "Plan" },
   coach: { label: "AI coach", icon: Sparkles, el: Coach },
@@ -36,11 +39,10 @@ const MOBILE_TABS = ["transactions", "cashflow", "spending", "networth"];
 
 function Logo() {
   return (
-    <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="#1F2A24" />
-      <path d="M7 21.5c3.2 1.6 14.8 1.6 18 0l-1.6 3c-4.6 1.4-10.2 1.4-14.8 0z" fill="#F26B2A" />
-      <path d="M16 5v14.5M16 6.5l7 11H16" stroke="#F6F5F3" strokeWidth="2" fill="none" strokeLinejoin="round" />
-    </svg>
+    <div className="brand">
+      <span className="brand-mark"><ShieldCheck /></span>
+      <div><div className="brand-name">PIFA</div><div className="brand-sub">Irish Finances</div></div>
+    </div>
   );
 }
 
@@ -57,6 +59,8 @@ export default function App() {
   const [toastMsg, setToastMsg] = useState(null);
   const [sheet, setSheet] = useState(false);
   const [version, setVersion] = useState(0);
+  const [theme, setTheme] = useState(currentTheme());
+  const toggleTheme = useCallback(() => { const t = theme === "dark" ? "light" : "dark"; applyTheme(t); setTheme(t); }, [theme]);
 
   useEffect(() => {
     const h = () => { setRoute(parseHash()); setSheet(false); window.scrollTo(0, 0); };
@@ -74,8 +78,8 @@ export default function App() {
   }, []);
   const bump = useCallback(() => setVersion((v) => v + 1), []);
 
-  const ctx = useMemo(() => ({ period, setPeriod, meta, toast, go, counts, refreshCounts, version, bump, query: route.query }),
-    [period, meta, toast, go, counts, refreshCounts, version, bump, route.query]);
+  const ctx = useMemo(() => ({ period, setPeriod, meta, toast, go, counts, refreshCounts, version, bump, query: route.query, theme, toggleTheme }),
+    [period, meta, toast, go, counts, refreshCounts, version, bump, route.query, theme, toggleTheme]);
   const Page = PAGES[route.page].el;
 
   const navItem = (key) => {
@@ -101,7 +105,7 @@ export default function App() {
     <AppCtx.Provider value={ctx}>
       <div className="app">
         <aside className="sidebar">
-          <div className="brand"><Logo />PIFA</div>
+          <Logo />
           {keys.map((k) => (
             <div key={k}>
               {PAGES[k].section && <div className="nav-section">{PAGES[k].section}</div>}
@@ -109,10 +113,14 @@ export default function App() {
               {k === "accounts" && uncatItem}
             </div>
           ))}
-          <div className="sidebar-foot">{navItem("settings")}</div>
+          <div className="sidebar-foot">
+            {navItem("settings")}
+            <button className="nav-item" onClick={toggleTheme}>{theme === "dark" ? <Sun /> : <Moon />}{theme === "dark" ? "Light mode" : "Dark mode"}</button>
+            <div className="sidebar-note">Personal Irish Financial App<br />Private · runs on your computer</div>
+          </div>
         </aside>
         <main className="main">
-          <div className="page"><Page key={route.page + (route.query.status || "")} /></div>
+          <div className="page"><Page key={route.page + (route.query.status || "") + theme} /></div>
         </main>
 
         <nav className="tabbar" aria-label="Main">
@@ -131,7 +139,7 @@ export default function App() {
         {sheet && (
           <div className="modal-bg" onMouseDown={(e) => e.target === e.currentTarget && setSheet(false)}>
             <div className="sheet">
-              {["overview", "accounts", "investments", "pensions", "loans", "simulator", "coach", "settings"].map(navItem)}
+              {["overview", "accounts", "investments", "pensions", "emergency", "loans", "simulator", "coach", "settings"].map(navItem)}
               {uncatItem}
             </div>
           </div>

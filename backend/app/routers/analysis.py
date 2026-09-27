@@ -55,6 +55,11 @@ def pensions(session: Session = Depends(get_session)):
     return fin.pension_summary(session)
 
 
+@router.get("/emergency")
+def emergency(session: Session = Depends(get_session)):
+    return fin.emergency_summary(session)
+
+
 @router.get("/insights")
 def get_insights(session: Session = Depends(get_session)):
     return {"insights": insights.build(session), "recurring": fin.recurring_payments(session)}
@@ -200,12 +205,12 @@ def ai_context_preview(session: Session = Depends(get_session)):
 # ------------------------------------------------------------------ settings & data
 @router.get("/settings")
 def get_settings(session: Session = Depends(get_session)):
-    return {k: st.get(session, k) for k in ("profile", "assumptions", "ai")}
+    return {k: st.get(session, k) for k in ("profile", "assumptions", "ai", "emergency")}
 
 
 @router.put("/settings/{key}")
 def put_settings(key: str, body: dict, session: Session = Depends(get_session)):
-    if key not in ("profile", "assumptions", "ai"):
+    if key not in ("profile", "assumptions", "ai", "emergency"):
         raise HTTPException(404, "Unknown settings section")
     return st.put(session, key, body)
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { C } from "../theme";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
 import { Plus } from "lucide-react";
 import { api } from "../api";
@@ -60,12 +61,12 @@ export default function Loans() {
                 <div><div className="muted" style={{ fontSize: 12 }}>Order</div><div style={{ fontSize: 12.5 }}>{chosen.order.map((o) => o.name).join(" → ")}</div></div>
               </div>
               <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={chart}><CartesianGrid vertical={false} stroke="#ECEAE6" />
+                <LineChart data={chart}><CartesianGrid vertical={false} stroke={C.grid} />
                   <XAxis dataKey="month" tickLine={false} axisLine={false} tickFormatter={(m) => (m % 12 === 0 ? `${m / 12}y` : "")} interval={0} />
                   <YAxis tickFormatter={compact} tickLine={false} axisLine={false} width={48} />
                   <Tooltip formatter={(v) => eur(v, 0)} labelFormatter={(m) => `Month ${m}`} /><Legend />
                   <Line dataKey="Minimum payments" stroke="#9CA3AF" dot={false} strokeWidth={2} isAnimationActive={false} />
-                  <Line dataKey={`With €${extra} extra`} stroke="#F26B2A" dot={false} strokeWidth={2} isAnimationActive={false} />
+                  <Line dataKey={`With €${extra} extra`} stroke={C.accent} dot={false} strokeWidth={2} isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
               {chosen.warnings.map((w) => <Notice key={w} warn>{w}</Notice>)}
