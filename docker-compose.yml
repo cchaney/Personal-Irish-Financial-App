@@ -1,0 +1,44 @@
+# PIFA — start with:            docker compose up -d --build
+# With a local AI (Ollama):     docker compose --profile ai up -d --build
+services:
+  pifa:
+    build: .
+    image: pifa:latest
+    container_name: pifa
+    # Bound to 127.0.0.1 so only this computer can open it. See README before changing.
+    ports:
+      - "127.0.0.1:${PIFA_PORT:-8080}:8000"
+    environment:
+      PIFA_OFFLINE: ${PIFA_OFFLINE:-false}
+      PIFA_AI_PROVIDER: ${PIFA_AI_PROVIDER:-none}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://host.docker.internal:1234/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5}
+    volumes:
+      - pifa-data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: pifa-ollama
+    profiles: ["ai"]
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+    # NVIDIA GPU? Uncomment (needs the NVIDIA Container Toolkit):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  pifa-data:
+  ollama-models:
